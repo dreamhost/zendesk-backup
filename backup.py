@@ -8,29 +8,44 @@ from datetime import datetime
 import tarfile
 from io import open
 
-def download_articles(zendesk_domain, email, password):
+def sanitize_filename(filename):
+    filename = filename.replace('/', '')
+    filename = filename.replace('\0', '')
+    return filename
+
+def download_articles(zendesk_domain, email=None, password=None):
     if not os.path.isdir(backup_loc):
         os.mkdir(backup_loc, 0700)
 
     sections = get_sections(zendesk_domain, email, password)
+    categories = get_categories(zendesk_domain, email, password)
+    categories_dict = {}
+    for category in categories['categories']:
+        categories_dict[category['id']] = category
 
     for section in sections['sections']:
-        category_dir = os.path.join(backup_loc, str(section['category_id']))
+        category_dir = os.path.join(backup_loc, str(section['category_id']) + " " +
+            sanitize_filename(categories_dict[section['category_id']]['name'])
+        )
         if not os.path.isdir(category_dir):
             os.mkdir(category_dir, 0700)
 
-        file_directory = os.path.join(category_dir, str(section['id']))
+        file_directory = os.path.join(category_dir, str(section['id']) + " " +
+            sanitize_filename(section['name'])
+        )
         if not os.path.isdir(file_directory):
             os.mkdir(file_directory, 0700)
 
-        articles = get_articles(zendesk_domain, email, password, section['id'])
+        articles = get_articles(zendesk_domain, section['id'], email, password)
         for article in articles['articles']:
-            file_name = os.path.join(file_directory, str(article['id']))
+            file_name = os.path.join(file_directory, str(article['id']) + " " +
+                sanitize_filename(article['title'])
+            )
             with open(file_name, 'w') as f:
                 f.write(article['body'])
         f.close()
 
-def get_articles(zendesk_domain, email, password, section_id):
+def get_articles(zendesk_domain, section_id, email=None, password=None):
     session = requests.Session()
     #session.auth = (email, password)
 
@@ -40,12 +55,19 @@ def get_articles(zendesk_domain, email, password, section_id):
     articles = json.loads(response.content)
     return articles
 
-def get_sections(zendesk_domain, email, password):
+def get_sections(zendesk_domain, email=None, password=None):
     session = requests.Session()
     #session.auth = (email, password)
     response = session.get(zendesk_domain + "/api/v2/help_center/sections.json?per_page=1000")
     sections = json.loads(response.content)
     return sections
+
+def get_categories(zendesk_domain, email=None, password=None):
+    session = requests.Session()
+    #session.auth = (email, password)
+    response = session.get(zendesk_domain + "/api/v2/help_center/categories.json?per_page=1000")
+    categories = json.loads(response.content)
+    return categories
 
 def upload_to_dho(dho_user, dho_key, backup_loc):
     conn = cloudfiles.get_connection(
@@ -79,14 +101,12 @@ backup_loc = 'zendesk-backup'
 try:
     email = env['EMAIL']
 except:
-    print("The environment variable 'EMAIL' is not set, please set it to the email that you use with zendesk")
-    sys.exit(1)
+    email = None
 
 try:
     password = env['ZENDESK_PASS']
 except:
-    print("The environment variable 'ZENDESK_PASS' is not set, please set it to your zendesk password")
-    sys.exit(1)
+    password = None
 
 try:
     dho_key = env['DHO_KEY']
