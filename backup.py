@@ -82,9 +82,15 @@ def upload_to_dho(dho_user, dho_key, backup_loc):
     )
     container = create_container(conn)
 
-    tar_name = create_tar(backup_loc)
-    obj = container.create_object(tar_name)
-    obj.load_from_filename(tar_name)
+    for category in os.listdir(backup_loc):
+        category_path = os.path.join(backup_loc, category)
+        for section in os.listdir(category_path):
+            section_path = os.path.join(category_path, section)
+            for file_name in os.listdir(section_path):
+                file_path = os.path.join(section_path, file_name)
+                print ("uploading " + file_path)
+                obj = container.create_object(file_path)
+                obj.load_from_filename(file_path)
 
 def create_container(conn):
     now = datetime.now()
