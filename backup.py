@@ -88,7 +88,7 @@ def upload_to_dho(dho_user, dho_key, backup_loc):
 
 def create_container(conn):
     now = datetime.now()
-    container_name = str(now.year) + '-' + str(now.month) + '-' + str(now.day) + '-' + str(now.hour) + '-' + str(now.minute)
+    container_name = "DH-ZENDESK-BACKUP-" + str(now.year) + '-' + str(now.month) + '-' + str(now.day) + '-' + str(now.hour) + '-' + str(now.minute)
     container = conn.create_container(container_name)
     return container
 
