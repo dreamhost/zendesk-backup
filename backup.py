@@ -13,10 +13,7 @@ def sanitize_filename(filename):
     filename = filename.replace('\0', '')
     return filename
 
-def download_articles(zendesk_domain, email=None, password=None):
-    if not os.path.isdir(backup_loc):
-        os.mkdir(backup_loc, 0700)
-
+def download_articles(zendesk_domain, backup_loc, email=None, password=None):
     sections = get_sections(zendesk_domain, email, password)
     categories = get_categories(zendesk_domain, email, password)
     categories_dict = {}
@@ -94,7 +91,7 @@ def upload_to_dho(dho_user, dho_key, backup_loc):
 
 def create_container(conn):
     now = datetime.now()
-    container_name = "DH-ZENDESK-BACKUP-" + str(now.year) + '-' + str(now.month) + '-' + str(now.day) + '-' + str(now.hour) + '-' + str(now.minute)
+    container_name = "kbbackup"
     container = conn.create_container(container_name)
     return container
 
@@ -107,7 +104,6 @@ def create_tar(backup_loc):
 
 # Grab variables for authentication and the url from the environment
 env = os.environ
-backup_loc = 'zendesk-backup'
 
 try:
     email = env['EMAIL']
@@ -134,5 +130,27 @@ try:
 except:
     zendesk_domain = input("Enter the zendesk url: ")
 
-download_articles(zendesk_domain, email, password)
+now = datetime.now()
+backup_loc = 'zendesk-backup'
+
+if not os.path.isdir(backup_loc):
+    os.mkdir(backup_loc, 0700)
+
+backup_loc = os.path.join(backup_loc, str(now.year))
+if not os.path.isdir(backup_loc):
+    os.mkdir(backup_loc, 0700)
+
+backup_loc = os.path.join(backup_loc, str(now.month))
+if not os.path.isdir(backup_loc):
+    os.mkdir(backup_loc, 0700)
+
+backup_loc = os.path.join(backup_loc, str(now.day))
+if not os.path.isdir(backup_loc):
+    os.mkdir(backup_loc, 0700)
+
+backup_loc = os.path.join(backup_loc, str(now.hour))
+if not os.path.isdir(backup_loc):
+    os.mkdir(backup_loc, 0700)
+
+download_articles(zendesk_domain, backup_loc, email, password)
 upload_to_dho(dho_user, dho_key, backup_loc)
