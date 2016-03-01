@@ -131,12 +131,7 @@ except:
     zendesk_domain = input("Enter the zendesk url: ")
 
 now = datetime.now()
-backup_loc = 'zendesk-backup'
-
-if not os.path.isdir(backup_loc):
-    os.mkdir(backup_loc, 0700)
-
-backup_loc = os.path.join(backup_loc, str(now.year))
+backup_loc = str(now.year)
 if not os.path.isdir(backup_loc):
     os.mkdir(backup_loc, 0700)
 
