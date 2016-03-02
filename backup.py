@@ -38,6 +38,7 @@ def download_articles(zendesk_domain, backup_loc, email=None, password=None):
             file_name = os.path.join(file_directory, str(article['id']) + " " +
                 sanitize_filename(article['title'])
             )
+            print "Writing file " + file_name
             with open(file_name, 'w') as f:
                 f.write(article['body'])
         f.close()
