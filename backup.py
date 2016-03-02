@@ -6,6 +6,7 @@ import json
 import cloudfiles
 from datetime import datetime
 import tarfile
+import codecs
 from io import open
 
 def sanitize_filename(filename):
@@ -39,7 +40,7 @@ def download_articles(zendesk_domain, backup_loc, email=None, password=None):
                 sanitize_filename(article['title'])
             )
             print "Writing file " + file_name
-            with open(file_name, 'w') as f:
+            with codecs.open(file_name, 'w', encoding='utf-8') as f:
                 f.write(article['body'])
         f.close()
 
@@ -149,4 +150,4 @@ if not os.path.isdir(backup_loc):
     os.mkdir(backup_loc, 0700)
 
 download_articles(zendesk_domain, backup_loc, email, password)
-upload_to_dho(dho_user, dho_key, backup_loc)
+#upload_to_dho(dho_user, dho_key, backup_loc)
