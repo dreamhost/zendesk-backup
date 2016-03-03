@@ -37,7 +37,7 @@ def download_articles(zendesk_domain, backup_loc, email=None, password=None):
         articles = get_articles(zendesk_domain, section['id'], email, password)
         for article in articles['articles']:
             file_name = os.path.join(file_directory, str(article['id']) + " " +
-                sanitize_filename(article['title'])
+                sanitize_filename(article['title']) + '.html'
             )
             file_name = unicodedata.normalize('NFKC', file_name).encode('ascii', 'ignore')
             print "Writing file " + file_name
