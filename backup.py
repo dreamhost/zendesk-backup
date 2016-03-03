@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import unicodedata
 import requests
 import sys
 import os
@@ -38,8 +39,9 @@ def download_articles(zendesk_domain, backup_loc, email=None, password=None):
             file_name = os.path.join(file_directory, str(article['id']) + " " +
                 sanitize_filename(article['title'])
             )
-            print "Writing file " + file_name.encode('utf-8')
-            with codecs.open(file_name.encode('utf-8'), 'w', encoding='utf-8') as f:
+            file_name = unicodedata.normalize('NFKC', file_name).encode('ascii', 'ignore')
+            print "Writing file " + file_name
+            with codecs.open(file_name, 'w', encoding='utf-8') as f:
                 f.write(article['body'])
         f.close()
 
@@ -86,7 +88,7 @@ def upload_to_dho(dho_user, dho_key, backup_loc):
             section_path = os.path.join(category_path, section)
             for file_name in os.listdir(section_path):
                 file_path = os.path.join(section_path, file_name)
-                print ("uploading " + file_path)
+                print "uploading " + file_path
                 obj = container.create_object(file_path)
                 obj.load_from_filename(file_path)
 
