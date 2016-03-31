@@ -37,12 +37,12 @@ def download_articles(zendesk_domain, backup_loc, email=None, password=None):
         articles = get_articles(zendesk_domain, section['id'], email, password)
         for article in articles['articles']:
             file_name = os.path.join(file_directory, str(article['id']) + " " +
-                sanitize_filename(article['title']) + '.html'
+                sanitize_filename(article['title']) + '.json'
             )
             file_name = unicodedata.normalize('NFKC', file_name).encode('ascii', 'ignore')
             print "Writing file " + file_name
             with codecs.open(file_name, 'w', encoding='utf-8') as f:
-                f.write(article['body'])
+                f.write(json.dumps(article))
         f.close()
 
 def get_articles(zendesk_domain, section_id, email=None, password=None):
