@@ -78,8 +78,9 @@ def upload_to_dho(dho_user, dho_key, backup_loc):
     conn = cloudfiles.get_connection(
         username=dho_user,
         api_key=dho_key,
-        authurl='https://objects.dreamhost.com/auth',
+        authurl='https://objects-us-west-1.dream.io/auth',
     )
+
     container = create_container(conn)
 
     for category in os.listdir(backup_loc):
