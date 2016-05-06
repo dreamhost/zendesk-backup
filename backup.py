@@ -91,7 +91,22 @@ def upload_to_dho(dho_user, dho_key, backup_loc):
                 file_path = os.path.join(section_path, file_name)
                 print "uploading " + file_path
                 obj = container.create_object(file_path)
-                obj.load_from_filename(file_path)
+                uploaded = False
+                i = 0
+                while i <= 4 and uploaded == False:
+                    try:
+                        obj.load_from_filename(file_path)
+                        uploaded = True
+
+                    except ssl.SSLError:
+                        if i < 4:
+                            print "Failed to upload " + file_path + ", trying again"
+                            i = i + 1
+
+                        else:
+                            print "Failed to upload 5 times, aborting"
+                            sys.exit(1)
+
 
 def create_container(conn):
     now = datetime.now()
