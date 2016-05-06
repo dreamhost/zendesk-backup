@@ -61,8 +61,15 @@ def get_sections(zendesk_domain, email=None, password=None):
     if email and password:
         session.auth = (email, password)
 
-    response = session.get(zendesk_domain + "/api/v2/help_center/sections.json?per_page=1000")
-    sections = json.loads(response.content)
+    response_raw = session.get(zendesk_domain + "/api/v2/help_center/sections.json?per_page=100")
+    sections = json.loads(response_raw.content)
+    next_page = sections['next_page']
+    while next_page is not None:
+        page_raw = session.get(next_page)
+        page = json.loads(page_raw.content)
+        sections['sections'] = sections['sections'] + page['sections']
+        next_page = page['next_page']
+
     return sections
 
 def get_categories(zendesk_domain, email=None, password=None):
