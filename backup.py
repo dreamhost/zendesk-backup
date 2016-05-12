@@ -50,10 +50,16 @@ def get_articles(zendesk_domain, section_id, email=None, password=None):
     if email and password:
         session.auth = (email, password)
 
-    url = zendesk_domain + "/api/v2/help_center/sections/" + str(section_id) + "/" + "articles.json?per_page=2000"
+    url = zendesk_domain + "/api/v2/help_center/sections/" + str(section_id) + "/" + "articles.json?per_page=100"
+    response_raw = session.get(url)
+    articles = json.loads(response_raw.content)
+    next_page = articles['next_page']
+    while next_page is not None:
+        page_raw = session.get(next_page)
+        page = json.loads(page_raw.content)
+        articles['articles'] = articles['articles'] + page['articles']
+        next_page = page['next_page']
 
-    response = session.get(url)
-    articles = json.loads(response.content)
     return articles
 
 def get_sections(zendesk_domain, email=None, password=None):
