@@ -122,9 +122,17 @@ def upload_to_dho(dho_user, dho_key, backup_loc):
 
 
 def create_container(conn):
+    created = False
+    i = 0
     now = datetime.now()
     container_name = "kbbackup"
-    container = conn.create_container(container_name)
+    while created == False and i <= 4
+        try:
+            container = conn.create_container(container_name)
+            created = True
+        except ssl.SSLError:
+            i = i + 1
+
     return container
 
 def create_tar(backup_loc):
