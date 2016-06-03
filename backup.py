@@ -126,7 +126,7 @@ def create_container(conn):
     i = 0
     now = datetime.now()
     container_name = "kbbackup"
-    while created == False and i <= 4
+    while created == False and i <= 4:
         try:
             container = conn.create_container(container_name)
             created = True
